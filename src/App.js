@@ -21,7 +21,6 @@ function draw(ctx, location) {
 function App() {
   const [locations, setLocations] = useState([]);
   const canvasRef = useRef(null);
-  console.log(locations);
 
   useEffect(() => {
     const canvas = canvasRef.current;
