@@ -1,5 +1,12 @@
+html {
+  font-size: 62.5%;
+  font-family: "kongtext", sans-serif;
+  src: local("kongtext"), url(./fonts/kongtext.ttf) format("ttf");
+}
 .App {
+  display: block;
   text-align: center;
+  margin: 0 auto;
 }
 
 .App-logo {
@@ -7,12 +14,19 @@
   pointer-events: none;
 }
 
+/* canvas {
+  border: 1px solid black;
+} */
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
 }
 
+.nes-select select {
+  width: 20%;
+}
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
