@@ -50,14 +50,8 @@ function Grid() {
       }
     }
 
-    ctx.fillRect(0, 0, 10, 10);
-
-    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    console.log(imageData);
-    ctx.putImageData(imageData, 0, 0);
-    // ctx.fillStyle = "green";
-    // ctx.fillRect(10, 10, gridWidth, gridHeight);
-    // ctx.clearRect(0, 0, window.innerHeight, window.innerWidth);
+    ctx.fillRect(10, 10, 10, 10);
+    // ctx.clearRect(0, 0, 10, 10);
     // locations.forEach((location) => draw(ctx, location));
   }, [gridSize]);
 

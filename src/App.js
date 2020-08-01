@@ -40,11 +40,11 @@ function App() {
 
   return (
     <div className="App">
-      <Route exact path="/about" component={About} />
-      <Link to="/about">About the Game of Life</Link>
       <Link to="/">Home</Link>
       <h1>Life Finds a Way</h1>
       <Grid />
+      <Link to="/about">About the Game of Life</Link>
+      <Route exact path="/about" component={About} />
     </div>
   );
 }
