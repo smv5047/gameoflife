@@ -18,7 +18,7 @@ export function useCanvas() {
   );
 
   const [gridArr, setGridArr] = useState(
-    setGridConfig("human", canvasWidth, canvasHeight, resolution)
+    setGridConfig("random", canvasWidth, canvasHeight, resolution)
   );
 
   useEffect(() => {
