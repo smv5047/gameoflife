@@ -1,104 +1,129 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useRef, useState } from "react";
+import { useCanvas } from "../hooks/useCanvas";
+import getCurrentSquare from "../utils/getCurrentSquare";
+import findNextGrid from "../utils/findNextGrid";
+import setGridConfig from "../utils/setGridConfig";
+import Buttons from "./Buttons";
 import "../App.css";
 
 function Grid() {
-  //   let ctx = canvas.getContext("2d");
-  //array of
-  const [locations, setLocations] = useState([]);
-  //use to track state if game is running
-  const [isLive, setIsLive] = useState(false);
-  //used to track gridsize
-  const [gridSize, setGridSize] = useState(250);
-  //Generations
-  const [generations, setGenerations] = useState(1);
+  const interval = useRef(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [speed, setSpeed] = useState(500);
 
-  const canvasRef = useRef(null);
+  const [
+    canvasRef,
+    canvasWidth,
+    canvasHeight,
+    resolution,
+    setResolution,
+    emptyGrid,
+    gridArr,
+    setGridArr,
+    currentGen,
+    setCurrentGen,
+  ] = useCanvas();
 
-  //Helper Functions//
-  function handleClear() {
-    setLocations([]);
+  function update() {
+    setGridArr((prevGridArr) =>
+      findNextGrid(prevGridArr, canvasWidth, canvasHeight, resolution)
+    );
+    setCurrentGen((prevGen) => prevGen + 1);
   }
 
-  function handlePlay() {
-    setIsLive(true);
+  function handleCanvasClick(e) {
+    handleStop();
+    let mousePosition = getCurrentSquare(e, canvasRef, resolution);
+    const currentCoord = { x: mousePosition.x, y: mousePosition.y };
+    // console.log(
+    //   `grid[${currentCoord.x / resolution}][${currentCoord.y / resolution}]`
+    // );
+    const newGrid = gridArr.map((row, key) => {
+      if (key === currentCoord.x / resolution) {
+        return row.map((item, colKey) => {
+          if (colKey === currentCoord.y / resolution) {
+            return item === 0 ? 1 : 0;
+          } else {
+            return item;
+          }
+        });
+      } else {
+        return row;
+      }
+    });
+    setGridArr(newGrid);
+  }
+
+  // control panel function handlers
+  function handleNext() {
+    if (isRunning) {
+      handleStop();
+    }
+    update();
+  }
+
+  function handleStart() {
+    setIsRunning(true);
+    interval.current = setInterval(() => requestAnimationFrame(update), speed);
   }
 
   function handleStop() {
-    setIsLive(false);
+    setIsRunning(false);
+    clearInterval(interval.current);
   }
 
-  function handleGridSize(size) {
-    setGridSize(size);
+  function handleClear() {
+    handleStop();
+    setGridArr(emptyGrid);
+    setCurrentGen(0);
   }
 
-  function handleChange(e) {
-    setGridSize(e.target.value);
-  }
-  function handleSubmit(event) {
-    event.preventDefault();
+  function handleConfig(e) {
+    handleStop();
+
+    setGridArr(
+      setGridConfig(e.target.value, canvasWidth, canvasHeight, resolution)
+    );
+    setCurrentGen(0);
   }
 
-  //Setting Grid
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.beginPath();
-    for (let i = 0; i < gridSize; i = i + 10) {
-      for (let j = 0; j < gridSize; j = j + 10) {
-        ctx.rect(i, j, 10, 10);
-        ctx.stroke();
-      }
-    }
+  function handleSize(e) {
+    setResolution(e.target.value);
+    handleClear();
+  }
 
-    ctx.fillRect(10, 10, 10, 10);
-    // ctx.clearRect(0, 0, 10, 10);
-    // locations.forEach((location) => draw(ctx, location));
-  }, [gridSize]);
+  function handleSpeed(e) {
+    handleStop();
+    setSpeed(e.target.value);
+    handleStart();
+  }
 
   return (
-    <div>
-      <h2>Generation: {generations}</h2>
-      <canvas
-        ref={canvasRef}
-        width={gridSize}
-        height={gridSize}
-        // onClick={handleCanvasClick}
+    <div className="game container">
+      <h1 className="display-2">Game of Life</h1>
+      <div className="Generations">
+        <span>Generation: {currentGen}</span>
+      </div>
+
+      <div className="grid">
+        <canvas
+          ref={canvasRef}
+          width={canvasWidth}
+          height={canvasHeight}
+          onClick={handleCanvasClick}
+        />
+      </div>
+      <Buttons
+        handleClear={handleClear}
+        handleNext={handleNext}
+        handleStart={handleStart}
+        handleStop={handleStop}
+        handleConfig={handleConfig}
+        handleSize={handleSize}
+        handleSpeed={handleSpeed}
+        resolution={resolution}
+        isRunning={isRunning}
       />
-      <form onSubmit={handleSubmit}>
-        <label for="gridsize">
-          <span className="nes-text is-primary">Board Size: </span>{" "}
-        </label>
-        <div className="nes-select">
-          <select name="gridsize" onChange={(e) => handleChange(e)}>
-            <option value="250">25x25</option>
-            <option value="500">50x50</option>
-            <option value="750">75x75</option>
-            <option value="1000">100x100</option>
-          </select>
-        </div>
-        {/* <input type="submit" value="Submit" /> */}
-      </form>
-      <button
-        type="button"
-        className="nes-btn is-success"
-        // onClick={handleStart}
-      >
-        START
-      </button>
-      <button
-        type="button"
-        className="nes-btn is-error"
-        // onClick={handleStop}
-      >
-        STOP
-      </button>
-      <button
-        type="button"
-        className="nes-btn is-primary"
-        onClick={handleClear}
-      >
-        CLEAR
-      </button>
     </div>
   );
 }
